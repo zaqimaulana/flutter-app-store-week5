@@ -188,7 +188,47 @@ class AuthProvider extends ChangeNotifier {
     if (_firebaseUser?.emailVerified ?? false) {
       return await _verifyTokenToBackend();
     }
-
     return false;
   }
+
+  //Logout & Clear Session
+  Future<void> logout() async {
+    await _auth.signOut();
+    await _googleSignIn.signOut();
+    await SecureStorageService.clearAll();
+
+    _firebaseUser = null;
+    _backendToken = null;
+    _status = AuthStatus.unauthenticated;
+
+    notifyListeners();
+  }
+
+  void _setLoading() {
+    _status = AuthStatus.loading;
+    _errorMessage = null;
+    notifyListeners();
+  }
+
+  void _setError(String message) {
+    _status = AuthStatus.error;
+    _errorMessage = message;
+    notifyListeners();
+  }
+
+  String _mapFirebaseError(String code) => switch (code) {
+        'email-already-in-use' =>
+          'Email sudah terdaftar',
+        'user-not-found' =>
+          'Akun tidak ditemukan',
+        'wrong-password' =>
+          'Password salah',
+        'invalid-email' =>
+          'Format email tidak valid',
+        'weak-password' =>
+          'Password terlalu lemah',
+        'network-request-failed' =>
+          'Tidak ada koneksi internet',
+        _ => 'Terjadi kesalahan'
+      };
 }
