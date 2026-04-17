@@ -41,7 +41,6 @@ class AuthProvider extends ChangeNotifier {
     required String password,
   }) async {
     _setLoading();
-    try {
       final credential =
           await _auth.createUserWithEmailAndPassword(
         email: email,
@@ -60,13 +59,9 @@ class AuthProvider extends ChangeNotifier {
       notifyListeners();
 
       return true;
-    } on FirebaseAuthException catch (e) {
-      _setError(_mapFirebaseError(e.code));
-      return false;
-    }
   }
 
-  // Ferivy email
+  // Verify email
   Future<bool> loginAfterEmailVerification() async {
     _setLoading();
 
@@ -91,6 +86,33 @@ class AuthProvider extends ChangeNotifier {
 
     return await _verifyTokenToBackend();
   }
+
+  // Verify Token ke Backend
+  Future<bool> _verifyTokenToBackend() async {
+      final firebaseToken =
+          await _firebaseUser?.getIdToken();
+
+      final response = await DioClient.instance.post(
+        ApiConstants.verifyToken,
+        data: {'firebase_token': firebaseToken},
+      );
+
+      final data =
+          response.data['data'] as Map<String, dynamic>;
+
+      final backendToken =
+          data['access_token'] as String;
+
+      await SecureStorageService.saveToken(
+          backendToken);
+
+      _backendToken = backendToken;
+
+      _status = AuthStatus.authenticated;
+      notifyListeners();
+
+      return true;
+    }
 
 
 }
