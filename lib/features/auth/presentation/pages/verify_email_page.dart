@@ -4,7 +4,7 @@ import 'package:provider/provider.dart';
 import '../../../../core/widgets/auth_header.dart';
 import '../../../../core/widgets/custom_button.dart';
 import '../providers/auth_provider.dart';
-import '../../../../core/router/app_router.dart';
+import '../../../../core/routes/app_router.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});
