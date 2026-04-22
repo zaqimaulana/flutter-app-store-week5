@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../../core/widgets/auth_header.dart';
-import '../../../../core/widgets/custom_button.dart';
-import '../providers/auth_provider.dart';
-import '../../../../core/routes/app_router.dart';
+import 'package:beer_store_app/core/widgets/auth_header.dart';
+import 'package:beer_store_app/core/widgets/custom_button.dart';
+import 'package:beer_store_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:beer_store_app/core/routes/app_router.dart';
 
 class VerifyEmailPage extends StatefulWidget {
   const VerifyEmailPage({super.key});

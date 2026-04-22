@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
-import '../../../products/presentation/providers/product_provider.dart';
+import 'package:beer_store_app/features/products/presentation/providers/product_provider.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});

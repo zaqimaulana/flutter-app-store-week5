@@ -1,4 +1,4 @@
-import '../models/product_model.dart';
+import 'package:beer_store_app/features/products/data/models/product_model.dart';
 
 abstract class ProductRepository {
   Future<List<ProductModel>> getProducts({

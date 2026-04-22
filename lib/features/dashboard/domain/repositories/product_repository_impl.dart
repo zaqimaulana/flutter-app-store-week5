@@ -1,8 +1,7 @@
-import 'package:flutter/material.dart';
-import '../../../../core/services/dio_client.dart';
-import '../../../../core/constants/api_constants.dart';
-import '../../data/models/product_model.dart';
-import 'product_repository.dart';
+import 'package:beer_store_app/core/constants/api_constants.dart';
+import 'package:beer_store_app/core/services/dio_client.dart';
+import 'package:beer_store_app/features/dashboard/domain/repositories/product_repository.dart';
+import 'package:beer_store_app/features/products/data/models/product_model.dart';
 
 class ProductRepositoryImpl implements ProductRepository {
   @override
