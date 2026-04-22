@@ -62,6 +62,8 @@ class _VerifyEmailPageState extends State<VerifyEmailPage> {
       }
     });
 
+    if (!mounted) return;
+    
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
         content: Text('Email verifikasi sudah dikirim ulang'),
