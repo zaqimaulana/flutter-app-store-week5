@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:firebase_auth/firebase_auth.dart' hide AuthProvider;
 import 'package:email_validator/email_validator.dart';
+
 import 'package:beer_store_app/core/routes/app_router.dart';
 import 'package:beer_store_app/core/widgets/auth_header.dart';
 import 'package:beer_store_app/core/widgets/custom_text_field.dart';
@@ -9,7 +10,9 @@ import 'package:beer_store_app/core/widgets/custom_button.dart';
 import 'package:beer_store_app/core/widgets/divider_with_text.dart';
 import 'package:beer_store_app/core/widgets/google_sign_in_button.dart';
 import 'package:beer_store_app/core/widgets/loading_overlay.dart';
-import 'package:beer_store_app/features/auth/presentation/providers/auth_provider.dart';
+
+import 'package:beer_store_app/features/auth/presentation/providers/auth_provider.dart'
+    as auth;
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -34,30 +37,34 @@ class _LoginPageState extends State<LoginPage> {
   Future<void> _loginEmail() async {
     if (!_formKey.currentState!.validate()) return;
 
-    final auth = context.read<AuthProvider>();
-    final ok = await auth.loginWithEmail(
+    final authProvider = context.read<auth.AuthProvider>();
+
+    final ok = await authProvider.loginWithEmail(
       email: _emailCtrl.text.trim(),
       password: _passCtrl.text,
     );
 
     if (!mounted) return;
-    _handleLoginResult(ok, auth);
+    _handleLoginResult(ok, authProvider);
   }
 
   Future<void> _loginGoogle() async {
-    final auth = context.read<AuthProvider>();
-    final ok = await auth.loginWithGoogle();
+    final authProvider = context.read<auth.AuthProvider>();
+
+    final ok = await authProvider.loginWithGoogle();
+
     if (!mounted) return;
-    _handleLoginResult(ok, auth);
+    _handleLoginResult(ok, authProvider);
   }
 
-  void _handleLoginResult(bool ok, AuthProvider auth) {
+  void _handleLoginResult(bool ok, auth.AuthProvider authProvider) {
     if (ok) {
       Navigator.pushReplacementNamed(
         context,
         AppRouter.dashboard,
       );
-    } else if (auth.status == AuthStatus.emailNotVerified) {
+    } else if (authProvider.status ==
+        auth.AuthStatus.emailNotVerified) {
       Navigator.pushReplacementNamed(
         context,
         AppRouter.verifyEmail,
@@ -65,7 +72,8 @@ class _LoginPageState extends State<LoginPage> {
     } else {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text(auth.errorMessage ?? 'Login gagal'),
+          content:
+              Text(authProvider.errorMessage ?? 'Login gagal'),
           backgroundColor: Colors.red,
         ),
       );
@@ -111,7 +119,7 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     final isLoading =
-        context.watch<AuthProvider>().isLoading;
+        context.watch<auth.AuthProvider>().isLoading;
 
     return LoadingOverlay(
       isLoading: isLoading,

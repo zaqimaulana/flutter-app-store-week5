@@ -89,58 +89,78 @@ class AuthProvider extends ChangeNotifier {
 
   // Verify Token ke Backend
   Future<bool> _verifyTokenToBackend() async {
-      final firebaseToken =
-          await _firebaseUser?.getIdToken();
+  try {
+    print("STEP 1 - ambil firebase token");
 
-      final response = await DioClient.instance.post(
-        ApiConstants.verifyToken,
-        data: {'firebase_token': firebaseToken},
-      );
+    final firebaseToken =
+        await _firebaseUser?.getIdToken();
 
-      final data =
-          response.data['data'] as Map<String, dynamic>;
+    print("TOKEN: $firebaseToken");
 
-      final backendToken =
-          data['access_token'] as String;
+    print("STEP 2 - kirim ke backend");
 
-      await SecureStorageService.saveToken(
-          backendToken);
+    final response = await DioClient.instance.post(
+      ApiConstants.verifyToken,
+      data: {'firebase_token': firebaseToken},
+    );
 
-      _backendToken = backendToken;
+    print("STEP 3 - response backend");
+    print(response.data);
 
-      _status = AuthStatus.authenticated;
+    final data =
+        response.data['data'] as Map<String, dynamic>;
+
+    final backendToken =
+        data['access_token'] as String;
+
+    await SecureStorageService.saveToken(
+        backendToken);
+
+    _backendToken = backendToken;
+
+    _status = AuthStatus.authenticated;
+    notifyListeners();
+
+    return true;
+  } catch (e) {
+    print("ERROR VERIFY TOKEN:");
+    print(e);
+
+    _setError("Gagal verifikasi backend");
+    return false;
+  }
+}
+
+//Login dengan email
+Future<bool> loginWithEmail({
+  required String email,
+  required String password,
+}) async {
+  _setLoading();
+  try {
+    final credential =
+        await _auth.signInWithEmailAndPassword(
+      email: email,
+      password: password,
+    );
+
+    _firebaseUser = credential.user;
+
+    if (!(_firebaseUser?.emailVerified ?? false)) {
+      _status = AuthStatus.emailNotVerified;
       notifyListeners();
-
-      return true;
-    }
-
-  //Login dengan email
-  Future<bool> loginWithEmail({
-    required String email,
-    required String password,
-  }) async {
-    _setLoading();
-    try {
-      final credential =
-          await _auth.signInWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-
-      _firebaseUser = credential.user;
-
-      if (!(_firebaseUser?.emailVerified ?? false)) {
-        _status = AuthStatus.emailNotVerified;
-        notifyListeners();
-        return false;
-      }
-
-      return await _verifyTokenToBackend();
-    } on FirebaseAuthException catch (e) {
-      _setError(_mapFirebaseError(e.code));
       return false;
     }
+
+    return await _verifyTokenToBackend();
+  } on FirebaseAuthException catch (e) {
+    _setError(_mapFirebaseError(e.code));
+    return false;
+  } catch (e) {
+    _setError("Login gagal");
+    return false;
   }
+}
 
   //Login dengan Google
   Future<bool> loginWithGoogle() async {
