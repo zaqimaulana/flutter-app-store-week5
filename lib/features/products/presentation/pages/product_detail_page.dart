@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:beer_store_app/features/products/data/models/product_model.dart';
+import 'package:provider/provider.dart';
+import 'package:beer_store_app/features/cart/presentation/providers/cart_provider.dart';
 
 class ProductDetailPage extends StatelessWidget {
   final ProductModel product;
@@ -16,7 +18,7 @@ class ProductDetailPage extends StatelessWidget {
         title: const Text("Detail Product"),
       ),
 
-      /// 🔥 BODY SCROLLABLE (FIX OVERFLOW)
+      /// BODY SCROLLABLE (FIX OVERFLOW)
       body: SingleChildScrollView(
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
@@ -110,18 +112,17 @@ class ProductDetailPage extends StatelessWidget {
                   SizedBox(
                     width: double.infinity,
                     child: ElevatedButton.icon(
-                      onPressed: () {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text("Added to cart"),
-                          ),
-                        );
-                      },
-                      icon: const Icon(Icons.shopping_cart),
-                      label: const Text("Add to Cart"),
-                      style: ElevatedButton.styleFrom(
-                        padding: const EdgeInsets.all(16),
-                      ),
+                        onPressed: () {
+                          context.read<CartProvider>().addToCart(product);
+
+                          ScaffoldMessenger.of(context).showSnackBar(
+                            const SnackBar(
+                              content: Text("Produk ditambahkan ke cart"),
+                            ),
+                          );
+                        },
+                        icon: const Icon(Icons.shopping_cart),
+                        label: const Text("Add to Cart"),
                     ),
                   ),
                 ],

@@ -5,6 +5,7 @@ import 'core/routes/app_router.dart';
 import 'package:beer_store_app/core/theme/app_theme.dart';
 import 'package:beer_store_app/features/auth/presentation/providers/auth_provider.dart';
 import 'package:beer_store_app/features/products/presentation/providers/product_provider.dart';
+import 'package:beer_store_app/features/cart/presentation/providers/cart_provider.dart';
 import 'firebase_options.dart';
 
 void main() async {
@@ -23,6 +24,7 @@ class MyApp extends StatelessWidget {
       providers: [
         ChangeNotifierProvider(create: (_) => AuthProvider()),
         ChangeNotifierProvider(create: (_) => ProductProvider()),
+        ChangeNotifierProvider(create: (_) => CartProvider()),
       ],
       child: MaterialApp(
         title:                     'My App',

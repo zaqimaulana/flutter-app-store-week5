@@ -4,6 +4,8 @@ import 'package:beer_store_app/features/products/presentation/providers/product_
 import 'package:beer_store_app/features/products/data/models/product_model.dart';
 import 'package:beer_store_app/features/products/presentation/pages/product_detail_page.dart';
 import 'package:beer_store_app/features/auth/presentation/providers/auth_provider.dart';
+import 'package:beer_store_app/features/cart/presentation/providers/cart_provider.dart';
+import 'package:beer_store_app/features/cart/presentation/pages/cart_page.dart';
 
 class DashboardPage extends StatefulWidget {
   const DashboardPage({super.key});
@@ -14,7 +16,7 @@ class DashboardPage extends StatefulWidget {
 
 class _DashboardPageState extends State<DashboardPage> {
   String _query = '';
-  final Set<int> _favorites = {}; // simpan id favorite
+  final Set<int> _favorites = {};
 
   @override
   void initState() {
@@ -29,7 +31,6 @@ class _DashboardPageState extends State<DashboardPage> {
     await auth.logout();
 
     if (!mounted) return;
-
     Navigator.pushReplacementNamed(context, "/login");
   }
 
@@ -46,6 +47,7 @@ class _DashboardPageState extends State<DashboardPage> {
   @override
   Widget build(BuildContext context) {
     final productProvider = context.watch<ProductProvider>();
+    final cart = context.watch<CartProvider>();
 
     return Scaffold(
       backgroundColor: const Color(0xffF5F6FA),
@@ -54,8 +56,47 @@ class _DashboardPageState extends State<DashboardPage> {
         title: const Text("Beer Store"),
         centerTitle: true,
 
-        /// LOGOUT BUTTON
         actions: [
+
+          /// CART BUTTON
+          Stack(
+            children: [
+              IconButton(
+                icon: const Icon(Icons.shopping_cart),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const CartPage(),
+                    ),
+                  );
+                },
+              ),
+
+              /// BADGE
+              if (cart.items.isNotEmpty)
+                Positioned(
+                  right: 6,
+                  top: 6,
+                  child: Container(
+                    padding: const EdgeInsets.all(4),
+                    decoration: BoxDecoration(
+                      color: Colors.red,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                    child: Text(
+                      cart.items.length.toString(),
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 10,
+                      ),
+                    ),
+                  ),
+                )
+            ],
+          ),
+
+          /// LOGOUT
           IconButton(
             icon: const Icon(Icons.logout),
             onPressed: _logout,
@@ -86,7 +127,6 @@ class _DashboardPageState extends State<DashboardPage> {
           child: Column(
             children: [
 
-              /// HEADER + SEARCH
               _HeaderSection(
                 onSearch: (value) {
                   setState(() {
@@ -95,7 +135,6 @@ class _DashboardPageState extends State<DashboardPage> {
                 },
               ),
 
-              /// GRID
               Expanded(
                 child: Builder(
                   builder: (_) {
@@ -141,7 +180,7 @@ class _DashboardPageState extends State<DashboardPage> {
   }
 }
 
-/// ================= HEADER =================
+/// HEADER
 class _HeaderSection extends StatelessWidget {
   final Function(String) onSearch;
 
@@ -185,7 +224,7 @@ class _HeaderSection extends StatelessWidget {
   }
 }
 
-/// ================= PRODUCT CARD =================
+/// PRODUCT CARD
 class _ProductCard extends StatelessWidget {
   final ProductModel product;
   final bool isFavorite;
@@ -199,6 +238,8 @@ class _ProductCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final cart = context.read<CartProvider>();
+
     return GestureDetector(
       onTap: () {
         Navigator.push(
@@ -215,8 +256,6 @@ class _ProductCard extends StatelessWidget {
         ),
         child: Stack(
           children: [
-
-            /// CONTENT
             Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -271,7 +310,22 @@ class _ProductCard extends StatelessWidget {
                             ),
                           ),
 
-                          const Icon(Icons.add_shopping_cart, size: 18)
+                          /// ADD TO CART
+                          IconButton(
+                            icon: const Icon(
+                                Icons.add_shopping_cart),
+                            onPressed: () {
+                              cart.addToCart(product);
+
+                              ScaffoldMessenger.of(context)
+                                  .showSnackBar(
+                                const SnackBar(
+                                  content:
+                                      Text("Ditambahkan ke cart"),
+                                ),
+                              );
+                            },
+                          )
                         ],
                       ),
                     ],
@@ -280,7 +334,6 @@ class _ProductCard extends StatelessWidget {
               ],
             ),
 
-            /// FAVORITE BUTTON
             Positioned(
               top: 8,
               right: 8,
